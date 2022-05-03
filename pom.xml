@@ -10,7 +10,7 @@
 		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.milkliver.springcloud.test</groupId>
-	<artifactId>springcloudtest03</artifactId>
+	<artifactId>springcloudtest01</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>springcloudtest03</name>
 	<description>Demo project for Spring Boot</description>
