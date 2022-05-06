@@ -1,5 +1,10 @@
 package com.milkliver.springcloud.test.springcloudtest03.Tasks;
 
+import java.net.URL;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,11 +43,21 @@ public class Task01 {
 
 			log.info("CommandLineRunner ...");
 			try {
+				Date now = new Date();
+
+				URL sendAlertUrl = new URL(omsServerSendAlertUrl);
+
+				SimpleDateFormat alertTimeFormat = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss", Locale.ENGLISH);
+
+				sendAlertUrl = new URL(sendAlertUrl, alertTimeFormat.format(now));
+
+				log.info("sendAlertUrl: " + sendAlertUrl.toString());
+
 				if (omsServerSendAlertEnableHttps) {
-					sendOmsAlert.https(omsServerSendAlertUrl, "GET", omsServerSendAlertConnectTimeOut,
+					sendOmsAlert.https(sendAlertUrl.toString(), "GET", omsServerSendAlertConnectTimeOut,
 							omsServerSendAlertReadTimeOut);
 				} else {
-					sendOmsAlert.http(omsServerSendAlertUrl, "GET", omsServerSendAlertConnectTimeOut,
+					sendOmsAlert.http(sendAlertUrl.toString(), "GET", omsServerSendAlertConnectTimeOut,
 							omsServerSendAlertReadTimeOut);
 				}
 			} catch (Exception e) {
