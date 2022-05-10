@@ -9,7 +9,7 @@ VOLUME /sys/fs/cgroup
 
 RUN yum install -y java
 RUN yum install -y curl
-RUN yum install -y python38
+RUN yum install -y python3
 
 RUN mkdir /testfiles
 WORKDIR /testfiles
