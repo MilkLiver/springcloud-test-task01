@@ -2,6 +2,7 @@ package com.milkliver.springcloud.test.springcloudtest03.Tasks;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.text.SimpleDateFormat;
@@ -63,7 +64,11 @@ public class Task01 {
 				Process process = Runtime.getRuntime().exec(systemCommand);
 //				Process process = Runtime.getRuntime().exec("powershell ls");
 //				Process process = Runtime.getRuntime().exec("notepad.exe");
-//				Process process = Runtime.getRuntime().exec("python test.py");
+//				Process process = Runtime.getRuntime().exec(
+//						"java -jar D:\\JavaProjects\\TestProject03\\springcloud-test-task01\\externalProgramFiles\\java-job01.jar");
+//				Process process = Runtime.getRuntime().exec("python D:\\JavaProjects\\TestProject03\\springcloud-test-task01\\externalProgramFiles\\test.py");
+
+//				process.waitFor();
 
 //				============================================================================================
 				StringBuilder execCmdRes = new StringBuilder();
@@ -76,6 +81,13 @@ public class Task01 {
 //					execCmdRes.append(new String(buffer, 0, bytesRead));
 //				}
 
+//				InputStream inputStream = process.getInputStream();
+//				InputStreamReader isr = new InputStreamReader(inputStream);
+//				InputStream errorStream = process.getErrorStream();
+//				InputStreamReader esr = new InputStreamReader(errorStream);
+
+//				process.getInputStream().read();
+
 				BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(process.getInputStream()));
 				String line;
 				while ((line = bufferedReader.readLine()) != null) {
@@ -84,8 +96,8 @@ public class Task01 {
 				}
 //				============================================================================================
 
-				process.waitFor();
-				log.info("exitVaule: " + String.valueOf(process.exitValue()));
+//				log.info("exitVaule: " + String.valueOf(process.exitValue()));
+				log.info("waitFor: " + String.valueOf(process.waitFor()));
 
 				log.info(execCmdRes.toString());
 
