@@ -1,6 +1,8 @@
 package com.milkliver.springcloud.test.springcloudtest03.Tasks;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Base64;
@@ -59,17 +61,31 @@ public class Task01 {
 						"==================================================start==================================================");
 
 				Process process = Runtime.getRuntime().exec(systemCommand);
+//				Process process = Runtime.getRuntime().exec("powershell ls");
+//				Process process = Runtime.getRuntime().exec("notepad.exe");
+//				Process process = Runtime.getRuntime().exec("python test.py");
 
-				BufferedInputStream bufferedInputStream = new BufferedInputStream(process.getInputStream());
-
+//				============================================================================================
 				StringBuilder execCmdRes = new StringBuilder();
 
-				byte[] buffer = new byte[10240];
-				int bytesRead = 0;
-				while ((bytesRead = bufferedInputStream.read(buffer)) != -1) {
-//					String chunk = new String(buffer, 0, bytesRead);
-					execCmdRes.append(new String(buffer, 0, bytesRead));
+//				BufferedInputStream bufferedInputStream = new BufferedInputStream(process.getInputStream());
+//				byte[] buffer = new byte[10240];
+//				int bytesRead = 0;
+//				while ((bytesRead = bufferedInputStream.read(buffer)) != -1) {
+////					String chunk = new String(buffer, 0, bytesRead);
+//					execCmdRes.append(new String(buffer, 0, bytesRead));
+//				}
+
+				BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+				String line;
+				while ((line = bufferedReader.readLine()) != null) {
+					execCmdRes.append(line);
+					execCmdRes.append("\r\n");
 				}
+//				============================================================================================
+
+				process.waitFor();
+				log.info("exitVaule: " + String.valueOf(process.exitValue()));
 
 				log.info(execCmdRes.toString());
 
