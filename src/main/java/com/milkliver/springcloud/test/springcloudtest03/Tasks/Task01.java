@@ -55,6 +55,8 @@ public class Task01 {
 				log.info("CommandBase64: " + systemCommandBase64);
 				String systemCommand = new String(decoder.decode(systemCommandBase64));
 				log.info("Command: " + systemCommand);
+				log.info(
+						"==================================================start==================================================");
 
 				Process process = Runtime.getRuntime().exec(systemCommand);
 
@@ -72,6 +74,8 @@ public class Task01 {
 				log.info(execCmdRes.toString());
 
 				process.destroy();
+				log.info(
+						"===================================================end===================================================");
 
 				Date now = new Date();
 
@@ -79,7 +83,8 @@ public class Task01 {
 
 				SimpleDateFormat alertTimeFormat = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss", Locale.ENGLISH);
 
-				sendAlertUrl = new URL(sendAlertUrl, alertTimeFormat.format(now));
+				sendAlertUrl = new URL(sendAlertUrl,
+						alertTimeFormat.format(now) + " execute command: " + systemCommand);
 
 				log.info("sendAlertUrl: " + sendAlertUrl.toString());
 
