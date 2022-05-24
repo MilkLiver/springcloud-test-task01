@@ -36,11 +36,11 @@ public class Task01 {
 	@Value("${oms.server.send-alert.read-time-out:2000}")
 	int omsServerSendAlertReadTimeOut;
 
-	@Value("${oms.server.send-alert.url}")
-	String omsServerSendAlertUrl;
+//	@Value("${oms.server.send-alert.url}")
+//	String omsServerSendAlertUrl;
 
-	@Value("${oms.server.send-alert.enable-https:false}")
-	boolean omsServerSendAlertEnableHttps;
+//	@Value("${oms.server.send-alert.enable-https:false}")
+//	boolean omsServerSendAlertEnableHttps;
 
 	@Value("${system.command}")
 	String systemCommandBase64;
@@ -105,24 +105,24 @@ public class Task01 {
 				log.info(
 						"===================================================end===================================================");
 
-				Date now = new Date();
-
-				URL sendAlertUrl = new URL(omsServerSendAlertUrl);
-
-				SimpleDateFormat alertTimeFormat = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss", Locale.ENGLISH);
-
-				sendAlertUrl = new URL(sendAlertUrl,
-						alertTimeFormat.format(now) + " execute command: " + systemCommand);
-
-				log.info("sendAlertUrl: " + sendAlertUrl.toString());
-
-				if (omsServerSendAlertEnableHttps) {
-					sendOmsAlert.https(sendAlertUrl.toString(), "GET", omsServerSendAlertConnectTimeOut,
-							omsServerSendAlertReadTimeOut);
-				} else {
-					sendOmsAlert.http(sendAlertUrl.toString(), "GET", omsServerSendAlertConnectTimeOut,
-							omsServerSendAlertReadTimeOut);
-				}
+//				Date now = new Date();
+//
+//				URL sendAlertUrl = new URL(omsServerSendAlertUrl);
+//
+//				SimpleDateFormat alertTimeFormat = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss", Locale.ENGLISH);
+//
+//				sendAlertUrl = new URL(sendAlertUrl,
+//						alertTimeFormat.format(now) + " execute command: " + systemCommand);
+//
+//				log.info("sendAlertUrl: " + sendAlertUrl.toString());
+//
+//				if (omsServerSendAlertEnableHttps) {
+//					sendOmsAlert.https(sendAlertUrl.toString(), "GET", omsServerSendAlertConnectTimeOut,
+//							omsServerSendAlertReadTimeOut);
+//				} else {
+//					sendOmsAlert.http(sendAlertUrl.toString(), "GET", omsServerSendAlertConnectTimeOut,
+//							omsServerSendAlertReadTimeOut);
+//				}
 			} catch (Exception e) {
 				log.error(e.getMessage());
 				for (StackTraceElement elem : e.getStackTrace()) {
