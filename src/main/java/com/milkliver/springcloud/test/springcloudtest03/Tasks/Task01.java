@@ -48,9 +48,18 @@ public class Task01 {
 	@Autowired
 	SendOmsAlert sendOmsAlert;
 
+	@Value("${spring.cloud.task.executionid:#{null}}")
+	Integer taskid;
+
 	@Bean
 	public CommandLineRunner commandLineRunner() {
 		return args -> {
+
+			if (taskid != null) {
+				log.info("taskid: " + String.valueOf(taskid) + " is running ...");
+			} else {
+				log.info("taskid: null is running ...");
+			}
 
 			log.info("CommandLineRunner ...");
 			try {
@@ -68,25 +77,8 @@ public class Task01 {
 //						"java -jar D:\\JavaProjects\\TestProject03\\springcloud-test-task01\\externalProgramFiles\\java-job01.jar");
 //				Process process = Runtime.getRuntime().exec("python D:\\JavaProjects\\TestProject03\\springcloud-test-task01\\externalProgramFiles\\test.py");
 
-//				process.waitFor();
-
 //				============================================================================================
 				StringBuilder execCmdRes = new StringBuilder();
-
-//				BufferedInputStream bufferedInputStream = new BufferedInputStream(process.getInputStream());
-//				byte[] buffer = new byte[10240];
-//				int bytesRead = 0;
-//				while ((bytesRead = bufferedInputStream.read(buffer)) != -1) {
-////					String chunk = new String(buffer, 0, bytesRead);
-//					execCmdRes.append(new String(buffer, 0, bytesRead));
-//				}
-
-//				InputStream inputStream = process.getInputStream();
-//				InputStreamReader isr = new InputStreamReader(inputStream);
-//				InputStream errorStream = process.getErrorStream();
-//				InputStreamReader esr = new InputStreamReader(errorStream);
-
-//				process.getInputStream().read();
 
 				BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(process.getInputStream()));
 				String line;
@@ -96,33 +88,21 @@ public class Task01 {
 				}
 //				============================================================================================
 
+				log.info(execCmdRes.toString());
+
 //				log.info("exitVaule: " + String.valueOf(process.exitValue()));
 				log.info("waitFor: " + String.valueOf(process.waitFor()));
 
-				log.info(execCmdRes.toString());
+				if (process.waitFor() != 0) {
+					log.info("task is failed");
+				} else {
+					log.info("task is success");
+				}
 
 				process.destroy();
 				log.info(
 						"===================================================end===================================================");
 
-//				Date now = new Date();
-//
-//				URL sendAlertUrl = new URL(omsServerSendAlertUrl);
-//
-//				SimpleDateFormat alertTimeFormat = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss", Locale.ENGLISH);
-//
-//				sendAlertUrl = new URL(sendAlertUrl,
-//						alertTimeFormat.format(now) + " execute command: " + systemCommand);
-//
-//				log.info("sendAlertUrl: " + sendAlertUrl.toString());
-//
-//				if (omsServerSendAlertEnableHttps) {
-//					sendOmsAlert.https(sendAlertUrl.toString(), "GET", omsServerSendAlertConnectTimeOut,
-//							omsServerSendAlertReadTimeOut);
-//				} else {
-//					sendOmsAlert.http(sendAlertUrl.toString(), "GET", omsServerSendAlertConnectTimeOut,
-//							omsServerSendAlertReadTimeOut);
-//				}
 			} catch (Exception e) {
 				log.error(e.getMessage());
 				for (StackTraceElement elem : e.getStackTrace()) {
@@ -130,7 +110,11 @@ public class Task01 {
 				}
 			}
 			log.info("CommandLineRunner finish");
-
+			if (taskid != null) {
+				log.info("taskid: " + String.valueOf(taskid) + " is finished ...");
+			} else {
+				log.info("taskid: null is finished ...");
+			}
 		};
 	}
 }
