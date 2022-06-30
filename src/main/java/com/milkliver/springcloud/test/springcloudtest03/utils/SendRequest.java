@@ -1,6 +1,10 @@
 package com.milkliver.springcloud.test.springcloudtest03.utils;
 
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
@@ -22,20 +26,23 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-@Component
-public class SendOmsAlert {
+import com.fasterxml.jackson.databind.ObjectMapper;
 
-	private static final Logger log = LoggerFactory.getLogger(SendOmsAlert.class);
+@Component
+public class SendRequest {
+
+	private static final Logger log = LoggerFactory.getLogger(SendRequest.class);
 
 	/*
 	 * http("http://127.0.0.1:8084/id/A", "POST", 1000,5000);
 	 * https("https://127.0.0.1:8443/id/A", "POST", 1000,5000);
 	 */
 
-	public Map http(String connectUrl, String method, int connectTimeOut, int readTimeOut) {
+	public Map http(String connectUrl, String hostname, String method, int connectTimeOut, int readTimeOut,
+			Map bodyMap) {
 		log.info(this.getClass().toString() + " http Url: " + connectUrl + " connectTimeOut: " + connectTimeOut
 				+ " readTimeOut: " + readTimeOut + " ...");
-
+		System.setProperty("sun.net.http.allowRestrictedHeaders", "true");
 		URL url;
 		HttpURLConnection con;
 		Map returnInfos = new HashMap();
@@ -45,21 +52,56 @@ public class SendOmsAlert {
 			url = new URL(connectUrl);
 
 			con = (HttpURLConnection) url.openConnection();
+			if (hostname != null && (!hostname.trim().equals(""))) {
+				con.setRequestProperty("HOST", hostname);
+			}
+
 			// 設定方法為GET
 			con.setRequestMethod(method);
 			con.setConnectTimeout(connectTimeOut);
 			con.setReadTimeout(readTimeOut);
 			con.setUseCaches(false);
 			con.setDoOutput(true);
-//			con.getResponseCode();
+
+//			con.setRequestProperty("HOST", hostname);
+			log.info(con.getRequestProperty("HOST"));
+
+			ObjectMapper requestJsonOM = new ObjectMapper();
+			String requestBodyStr = requestJsonOM.writeValueAsString(bodyMap);
+			log.info("sned request body json: " + requestBodyStr);
+
+			OutputStream os = con.getOutputStream();
+			DataOutputStream writer = new DataOutputStream(os);
+			writer.write(requestBodyStr.getBytes());
+			writer.flush();
+			writer.close();
+			os.close();
+
 //			InputStream is = con.getInputStream();
+			// Send Request and get ResponseCode
 			responseCode = con.getResponseCode();
 			returnInfos.put("statusCode", responseCode);
+
+			BufferedReader responseBr = null;
+
+			log.info("connectUrl: " + connectUrl);
+			log.info("response Code: " + String.valueOf(responseCode));
 			if (String.valueOf(responseCode).substring(0, 1).equals("4")
 					|| String.valueOf(responseCode).substring(0, 1).equals("5")) {
+				responseBr = new BufferedReader(new InputStreamReader(con.getErrorStream()));
 				returnInfos.put("status", false);
+			} else {
+				returnInfos.put("status", true);
+				responseBr = new BufferedReader(new InputStreamReader(con.getInputStream()));
 			}
-			returnInfos.put("status", true);
+
+			StringBuilder resSb = new StringBuilder();
+			String line;
+			while ((line = responseBr.readLine()) != null) {
+				resSb.append(line);
+			}
+			returnInfos.put("responseContent", resSb.toString());
+
 			log.info(this.getClass().toString() + " http Url: " + connectUrl + " connectTimeOut: " + connectTimeOut
 					+ " readTimeOut: " + readTimeOut + " finish");
 
@@ -92,9 +134,11 @@ public class SendOmsAlert {
 		}
 	}
 
-	public Map https(String connectUrl, String method, int connectTimeOut, int readTimeOut) {
+	public Map https(String connectUrl, String hostname, String method, int connectTimeOut, int readTimeOut,
+			Map bodyMap) {
 		log.info(this.getClass().toString() + " https Url: " + connectUrl + " connectTimeOut: " + connectTimeOut
 				+ " readTimeOut: " + readTimeOut + " ...");
+		System.setProperty("sun.net.http.allowRestrictedHeaders", "true");
 
 		SSLContext sslcontext;
 		HttpsURLConnection con;
@@ -113,6 +157,9 @@ public class SendOmsAlert {
 			HttpsURLConnection.setDefaultSSLSocketFactory(sslcontext.getSocketFactory());
 			// 之後任何Https協議網站皆能正常訪問
 			con = (HttpsURLConnection) url.openConnection();
+			if (hostname != null && (!hostname.trim().equals(""))) {
+				con.setRequestProperty("HOST", hostname);
+			}
 			con.setRequestMethod(method);
 			con.setRequestProperty("Content-type", "application/json");
 			// 必須設置為false，否則會自動redirect到重定向後的地址
@@ -121,6 +168,20 @@ public class SendOmsAlert {
 			con.setReadTimeout(readTimeOut);
 			con.setUseCaches(false);
 			con.setDoOutput(true);
+
+			log.info(con.getRequestProperty("HOST"));
+
+			ObjectMapper requestJsonOM = new ObjectMapper();
+			String requestBodyStr = requestJsonOM.writeValueAsString(bodyMap);
+			log.info("sned request body json: " + requestBodyStr);
+
+			OutputStream os = con.getOutputStream();
+			DataOutputStream writer = new DataOutputStream(os);
+			writer.write(requestBodyStr.getBytes());
+			writer.flush();
+			writer.close();
+			os.close();
+
 			int responseCode = con.getResponseCode();
 			returnInfos.put("statusCode", responseCode);
 			if (String.valueOf(responseCode).substring(0, 1).equals("4")

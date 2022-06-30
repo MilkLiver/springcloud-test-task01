@@ -8,7 +8,9 @@ import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Base64;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,7 +21,7 @@ import org.springframework.cloud.task.configuration.EnableTask;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import com.milkliver.springcloud.test.springcloudtest03.utils.SendOmsAlert;
+import com.milkliver.springcloud.test.springcloudtest03.utils.SendRequest;
 
 @Configuration
 @EnableTask
@@ -30,23 +32,29 @@ public class Task01 {
 	final Base64.Decoder decoder = Base64.getDecoder();
 	final Base64.Encoder encoder = Base64.getEncoder();
 
-	@Value("${oms.server.send-alert.connect-time-out:2000}")
-	int omsServerSendAlertConnectTimeOut;
+	@Value("${scdf.server.runtask.api.request.url:#{null}}")
+	String scdfServerRuntaskApiRequestUrl;
 
-	@Value("${oms.server.send-alert.read-time-out:2000}")
-	int omsServerSendAlertReadTimeOut;
+	@Value("${scdf.server.runtask.api.request.hostname:#{null}}")
+	String scdfServerRuntaskApiRequestHostname;
 
-//	@Value("${oms.server.send-alert.url}")
-//	String omsServerSendAlertUrl;
+	@Value("${scdf.server.runtask.api.request.method:GET}")
+	String scdfServerRuntaskApiRequestMethod;
 
-//	@Value("${oms.server.send-alert.enable-https:false}")
-//	boolean omsServerSendAlertEnableHttps;
+	@Value("${scdf.server.runtask.api.request.connect-time-out:2000}")
+	int scdfServerRuntaskApiRequestConnectTimeOut;
+
+	@Value("${scdf.server.runtask.api.request.read-time-out:2000}")
+	int scdfServerRuntaskApiRequestReadTimeOut;
+
+	@Value("${scdf.server.runtask.api.request.enable-https:false}")
+	Boolean scdfServerRuntaskApiRequestEnableHttps;
 
 	@Value("${system.command}")
 	String systemCommandBase64;
 
 	@Autowired
-	SendOmsAlert sendOmsAlert;
+	SendRequest sendRequest;
 
 	@Value("${spring.cloud.task.executionid:#{null}}")
 	Integer taskid;
@@ -93,9 +101,28 @@ public class Task01 {
 //				log.info("exitVaule: " + String.valueOf(process.exitValue()));
 				log.info("waitFor: " + String.valueOf(process.waitFor()));
 
+				Map<String, Object> jsonMap = new HashMap<String, Object>();
+
+				jsonMap.put("message", taskid);
+//				jsonMap.put("message", "1081");
+
 				if (process.waitFor() != 0) {
 					log.info("task is failed");
 				} else {
+					Map<String, Object> sendSuccessMsgRes = new HashMap<String, Object>();
+					if (scdfServerRuntaskApiRequestEnableHttps) {
+						sendSuccessMsgRes = sendRequest.https(scdfServerRuntaskApiRequestUrl,
+								scdfServerRuntaskApiRequestHostname, scdfServerRuntaskApiRequestMethod,
+								scdfServerRuntaskApiRequestConnectTimeOut, scdfServerRuntaskApiRequestReadTimeOut,
+								jsonMap);
+					} else {
+						sendSuccessMsgRes = sendRequest.http(scdfServerRuntaskApiRequestUrl,
+								scdfServerRuntaskApiRequestHostname, scdfServerRuntaskApiRequestMethod,
+								scdfServerRuntaskApiRequestConnectTimeOut, scdfServerRuntaskApiRequestReadTimeOut,
+								jsonMap);
+					}
+
+					log.info("response content: " + String.valueOf(sendSuccessMsgRes.get("responseContent")));
 					log.info("task is success");
 				}
 
