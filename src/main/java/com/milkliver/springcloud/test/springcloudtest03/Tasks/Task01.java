@@ -63,13 +63,13 @@ public class Task01 {
 	public CommandLineRunner commandLineRunner() {
 		return args -> {
 
+			log.info("SCDF executor CommandLineRunner ...");
 			if (taskid != null) {
 				log.info("taskid: " + String.valueOf(taskid) + " is running ...");
 			} else {
 				log.info("taskid: null is running ...");
 			}
 
-			log.info("CommandLineRunner ...");
 			try {
 
 				log.info("CommandBase64: " + systemCommandBase64);
@@ -104,7 +104,7 @@ public class Task01 {
 				Map<String, Object> jsonMap = new HashMap<String, Object>();
 
 				jsonMap.put("message", taskid);
-//				jsonMap.put("message", "1081");
+//				jsonMap.put("message", "1084");
 
 				if (process.waitFor() != 0) {
 					log.info("task is failed");
@@ -142,6 +142,7 @@ public class Task01 {
 			} else {
 				log.info("taskid: null is finished ...");
 			}
+			log.info("SCDF executor CommandLineRunner finish");
 		};
 	}
 }
