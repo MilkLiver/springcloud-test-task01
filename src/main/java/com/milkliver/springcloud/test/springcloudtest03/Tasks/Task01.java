@@ -57,7 +57,7 @@ public class Task01 {
 	SendRequest sendRequest;
 
 	@Value("${spring.cloud.task.executionid:#{null}}")
-	Integer taskid;
+	String taskid;
 
 	@Bean
 	public CommandLineRunner commandLineRunner() {
